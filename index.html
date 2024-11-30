@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPS Test</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        h1, h2 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            background: #ff4e50;
+            color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+
+        .button:hover {
+            background: #ff1e2b;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .button:active {
+            transform: translateY(2px);
+        }
+
+        #click-area {
+            display: none;
+            margin: 20px auto;
+            width: 400px;
+            height: 400px;
+            background: #4CAF50;
+            color: white;
+            font-size: 2rem;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 15px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #result-area {
+            display: none;
+            font-size: 1.5rem;
+        }
+
+        /* Ripple Animation */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            animation: ripple-effect 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-effect {
+            from {
+                width: 0;
+                height: 0;
+                opacity: 0.7;
+            }
+            to {
+                width: 500px;
+                height: 500px;
+                opacity: 0;
+            }
+        }
+
+        /* Fade-in effect for the result area */
+        #result-area {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Modal Popup Styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Black with transparency */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            animation: fadeInModal 0.5s ease, slideInFromTop 0.5s ease;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            color: #333;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .modal h2 {
+            margin-top: 0;
+        }
+
+        .modal button {
+            background-color: #ff4e50;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .modal button:hover {
+            background-color: #ff1e2b;
+        }
+
+        /* Slide-in animation for the modal */
+        @keyframes slideInFromTop {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* Modal Fade-in */
+        @keyframes fadeInModal {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Selection Screen -->
+    <div id="selection-screen">
+        <h1>CPS Test</h1>
+        <p>Select a time duration to begin!</p>
+        <div>
+            <button class="button" onclick="setDuration(1)">1 Second</button>
+            <button class="button" onclick="setDuration(2)">2 Seconds</button>
+            <button class="button" onclick="setDuration(5)">5 Seconds</button>
+            <button class="button" onclick="setDuration(10)">10 Seconds</button>
+            <button class="button" onclick="setDuration(15)">15 Seconds</button>
+        </div>
+    </div>
+
+    <!-- Clicking Area -->
+    <div id="click-area" onclick="registerClick(event)">
+        Click Here to Start!
+    </div>
+
+    <!-- Modal Popup for Result -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content">
+            <h2>Test Completed</h2>
+            <p>Your CPS: <span id="cps-result">0</span></p>
+            <button class="button" onclick="restartTest()">Restart Test</button>
+            <button class="button" onclick="goToSelection()">Choose Another Test</button>
+        </div>
+    </div>
+
+    <script>
+        let clickCount = 0;
+        let testDuration = 0;
+        let testStarted = false;
+        let timer;
+
+        // Set the test duration and show the clicking area
+        function setDuration(duration) {
+            testDuration = duration;
+            clickCount = 0;
+            testStarted = false;
+
+            // Hide selection screen and show clicking area after selection
+            document.getElementById("selection-screen").style.display = "none";
+            document.getElementById("click-area").style.display = "flex";
+            document.getElementById("click-area").innerText = "Click Here to Start!";
+            document.getElementById("result-modal").style.display = "none";  // Hide result area when starting a new test
+        }
+
+        // Register clicks and start the timer on the first click
+        function registerClick(event) {
+            if (!testStarted) {
+                testStarted = true;
+                startTimer();
+            }
+
+            clickCount++;
+
+            // Add ripple effect
+            createRipple(event);
+
+            document.getElementById("click-area").innerText = `Clicks: ${clickCount}`;
+        }
+
+        // Create ripple effect at the click position
+        function createRipple(event) {
+            const clickArea = event.currentTarget;
+            const ripple = document.createElement("div");
+            ripple.classList.add("ripple");
+
+            const rect = clickArea.getBoundingClientRect();
+            ripple.style.left = `${event.clientX - rect.left}px`;
+            ripple.style.top = `${event.clientY - rect.top}px`;
+
+            clickArea.appendChild(ripple);
+
+            // Remove ripple after animation
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+
+        // Start the timer only after the first click
+        function startTimer() {
+            // Start the countdown only after the first click
+            timer = setTimeout(endTest, testDuration * 1000);
+        }
+
+        // End the test and show results in the modal
+        function endTest() {
+            document.getElementById("click-area").style.display = "none";  // Hide clickable area after test
+            const cps = (clickCount / testDuration).toFixed(2);
+            document.getElementById("cps-result").innerText = cps;
+
+            // Show the result modal
+            document.getElementById("result-modal").style.display = "flex";
+        }
+
+        // Restart the same test
+        function restartTest() {
+            clearTimeout(timer);
+            setDuration(testDuration);
+        }
+
+        // Go back to the selection screen
+        function goToSelection() {
+            clearTimeout(timer);
+            document.getElementById("click-area").style.display = "none";
+            document.getElementById("result-modal").style.display = "none";
+            document.getElementById("selection-screen").style.display = "block";
+        }
+    </script>
+</body>
+</html>
