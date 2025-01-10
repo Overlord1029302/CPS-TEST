@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CPS Test</title>
     <style>
-        /* General Styling */
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #6a11cb, #2575fc);
@@ -78,7 +78,7 @@
             font-size: 1.5rem;
         }
 
-        /* Ripple Animation */
+        
         .ripple {
             position: absolute;
             border-radius: 50%;
@@ -100,7 +100,7 @@
             }
         }
 
-        /* Fade-in effect for the result area */
+    
         #result-area {
             animation: fadeIn 1s ease-in-out;
         }
@@ -110,16 +110,16 @@
             100% { opacity: 1; }
         }
 
-        /* Modal Popup Styling */
+      
         .modal {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             z-index: 1;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7); /* Black with transparency */
+            background: rgba(0, 0, 0, 0.7);
             justify-content: center;
             align-items: center;
             text-align: center;
@@ -155,7 +155,6 @@
             background-color: #ff1e2b;
         }
 
-        /* Slide-in animation for the modal */
         @keyframes slideInFromTop {
             0% {
                 transform: translateY(-100%);
@@ -165,7 +164,7 @@
             }
         }
 
-        /* Modal Fade-in */
+        
         @keyframes fadeInModal {
             0% { opacity: 0; }
             100% { opacity: 1; }
@@ -187,12 +186,11 @@
         </div>
     </div>
 
-    <!-- Clicking Area -->
     <div id="click-area" onclick="registerClick(event)">
         Click Here to Start!
     </div>
 
-    <!-- Modal Popup for Result -->
+  
     <div id="result-modal" class="modal">
         <div class="modal-content">
             <h2>Test Completed</h2>
@@ -208,20 +206,19 @@
         let testStarted = false;
         let timer;
 
-        // Set the test duration and show the clicking area
+       
         function setDuration(duration) {
             testDuration = duration;
             clickCount = 0;
             testStarted = false;
 
-            // Hide selection screen and show clicking area after selection
             document.getElementById("selection-screen").style.display = "none";
             document.getElementById("click-area").style.display = "flex";
             document.getElementById("click-area").innerText = "Click Here to Start!";
-            document.getElementById("result-modal").style.display = "none";  // Hide result area when starting a new test
+            document.getElementById("result-modal").style.display = "none"; 
         }
 
-        // Register clicks and start the timer on the first click
+    
         function registerClick(event) {
             if (!testStarted) {
                 testStarted = true;
@@ -230,13 +227,13 @@
 
             clickCount++;
 
-            // Add ripple effect
+            
             createRipple(event);
 
             document.getElementById("click-area").innerText = `Clicks: ${clickCount}`;
         }
 
-        // Create ripple effect at the click position
+
         function createRipple(event) {
             const clickArea = event.currentTarget;
             const ripple = document.createElement("div");
@@ -248,35 +245,30 @@
 
             clickArea.appendChild(ripple);
 
-            // Remove ripple after animation
             setTimeout(() => {
                 ripple.remove();
             }, 600);
         }
 
-        // Start the timer only after the first click
         function startTimer() {
-            // Start the countdown only after the first click
+            
             timer = setTimeout(endTest, testDuration * 1000);
         }
 
-        // End the test and show results in the modal
         function endTest() {
-            document.getElementById("click-area").style.display = "none";  // Hide clickable area after test
+            document.getElementById("click-area").style.display = "none";
             const cps = (clickCount / testDuration).toFixed(2);
             document.getElementById("cps-result").innerText = cps;
 
-            // Show the result modal
             document.getElementById("result-modal").style.display = "flex";
         }
 
-        // Restart the same test
         function restartTest() {
             clearTimeout(timer);
             setDuration(testDuration);
         }
 
-        // Go back to the selection screen
+        
         function goToSelection() {
             clearTimeout(timer);
             document.getElementById("click-area").style.display = "none";
